@@ -27,6 +27,10 @@ class SvgObject(object):
     This class is a wrapper of the svg node, attributes are mapped
     to lxml node attributes
     """
+    prefixes = {
+        "sodipodi":"{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}",
+        "inkscape":"{http://www.inkscape.org/namespaces/inkscape}",
+    }
     def __init__(self, lxml):
         object.__setattr__(self, 'e', lxml)
 
@@ -38,6 +42,19 @@ class SvgObject(object):
 
     def __setattr__(self, name, value):
         self.e.attrib[name] = str(value)
+
+    def attrname(self, name):
+        splitted_name = name.split(':')
+        if (len(splitted_name) > 0):
+            if splitted_name[0] in self.prefixes:
+                return self.prefixes[splitted_name[0]] + splitted_name[1]
+        return name
+
+    def getattr(self, name):
+        return self.e.attrib[self.attrname(name)]
+
+    def setattr(self, name, value):
+        self.e.attrib[self.attrname(name)] = str(value)
 
     def isgroup(self):
         return self.getE().tag == 'g'
